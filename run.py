@@ -5,6 +5,7 @@ Starts the FastAPI server and opens the browser automatically.
 """
 
 import importlib
+import importlib.util
 import subprocess
 import sys
 import time
