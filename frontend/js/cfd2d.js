@@ -46,7 +46,8 @@ export class CFD2DRenderer {
         this._resize();
         this._resetParticles();
 
-        window.addEventListener('resize', () => this._resize());
+        this._resizeHandler = () => this._resize();
+        window.addEventListener('resize', this._resizeHandler);
     }
 
     setInputs({ velocity, diameter, reynolds, turbulence_factor, turbulence_intensity }) {
@@ -66,7 +67,7 @@ export class CFD2DRenderer {
     }
 
     dispose() {
-        window.removeEventListener('resize', this._resize);
+        window.removeEventListener('resize', this._resizeHandler);
         this.canvas.remove();
     }
 

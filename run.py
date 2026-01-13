@@ -4,6 +4,7 @@ Reynolds Flow Demo - Launch Script
 Starts the FastAPI server and opens the browser automatically.
 """
 
+import importlib
 import subprocess
 import sys
 import time
@@ -13,12 +14,7 @@ from pathlib import Path
 
 def check_dependencies():
     """Check if required dependencies are installed."""
-    try:
-        import fastapi
-        import uvicorn
-        return True
-    except ImportError:
-        return False
+    return all(importlib.util.find_spec(name) is not None for name in ("fastapi", "uvicorn"))
 
 
 def install_dependencies():
@@ -44,8 +40,8 @@ def main():
     if not check_dependencies():
         install_dependencies()
     
-    # Import after installation
-    import uvicorn
+    # Import after installation (runtime import to avoid static analyzer warnings)
+    uvicorn = importlib.import_module("uvicorn")
     
     # Configuration
     host = "127.0.0.1"

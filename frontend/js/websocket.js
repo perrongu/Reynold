@@ -7,6 +7,7 @@ export class WebSocketManager {
         this.url = url;
         this.socket = null;
         this.isConnected = false;
+        this.shouldReconnect = true;
         this.reconnectAttempts = 0;
         this.maxReconnectAttempts = 5;
         this.reconnectDelay = 2000;
@@ -28,6 +29,7 @@ export class WebSocketManager {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             return Promise.resolve();
         }
+        this.shouldReconnect = true;
         
         return new Promise((resolve, reject) => {
             try {
@@ -58,7 +60,7 @@ export class WebSocketManager {
                     if (this.onDisconnect) this.onDisconnect();
                     
                     // Tentative de reconnexion
-                    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                    if (this.shouldReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
                         this.reconnectAttempts++;
                         console.log(`Reconnexion dans ${this.reconnectDelay}ms (tentative ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
                         setTimeout(() => this.connect(), this.reconnectDelay);
@@ -111,6 +113,12 @@ export class WebSocketManager {
     }
     
     disconnect() {
+        this.shouldReconnect = false;
+        if (this.sendTimeout) {
+            clearTimeout(this.sendTimeout);
+            this.sendTimeout = null;
+            this.pendingData = null;
+        }
         if (this.socket) {
             this.socket.close();
             this.socket = null;

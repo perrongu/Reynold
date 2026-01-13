@@ -2,6 +2,7 @@
 Calculs physiques pour le nombre de Reynolds et la classification des régimes d'écoulement.
 """
 from dataclasses import dataclass
+import math
 from enum import Enum
 from typing import Tuple
 
@@ -57,8 +58,16 @@ def calculate_reynolds(params: FlowParameters) -> float:
         D = diamètre caractéristique (m)
         μ = viscosité dynamique (Pa·s)
     """
+    if not all(math.isfinite(v) for v in (params.velocity, params.diameter, params.density, params.viscosity)):
+        raise ValueError("Les paramètres doivent être des nombres finis")
+    if params.density <= 0:
+        raise ValueError("La densité doit être positive")
+    if params.diameter <= 0:
+        raise ValueError("Le diamètre doit être positif")
     if params.viscosity <= 0:
         raise ValueError("La viscosité doit être positive")
+    if params.velocity < 0:
+        raise ValueError("La vitesse doit être positive ou nulle")
     
     return (params.density * params.velocity * params.diameter) / params.viscosity
 

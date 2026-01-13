@@ -11,6 +11,7 @@ class ReynoldsFlowApp {
         this.renderer = null;
         this.uiManager = null;
         this.wsManager = null;
+        this._rafId = null;
         
         // État courant
         this.currentData = {
@@ -134,7 +135,7 @@ class ReynoldsFlowApp {
     _startRenderLoop() {
         let last = performance.now();
         const animate = () => {
-            requestAnimationFrame(animate);
+            this._rafId = requestAnimationFrame(animate);
             
             const now = performance.now();
             const dt = Math.min(0.05, Math.max(0.001, (now - last) / 1000));
@@ -146,6 +147,10 @@ class ReynoldsFlowApp {
     }
     
     dispose() {
+        if (this._rafId !== null) {
+            cancelAnimationFrame(this._rafId);
+            this._rafId = null;
+        }
         this.wsManager.disconnect();
         this.renderer.dispose();
     }
